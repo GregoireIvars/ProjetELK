@@ -13,17 +13,19 @@ const fs = require('fs');
 const csv = require('csv-parser');
 
 
-const integration = () => {
+const integration = (fille) => {
     json = []; 
 
-    fs.createReadStream('Donnee/art.csv')
+    fs.createReadStream(fille)
     .pipe(csv({ separator: ',' }))
     .on('data', (data) => {
         json.push(data);
     })
-    .on('end', () => {
-        console.log(json);
-    })
+    // .on('end', () => {
+    //     console.log(json);
+    // })
+
+    return json;
 }
 
 
