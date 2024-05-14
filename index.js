@@ -56,16 +56,15 @@ app.get('/', (req, res) => {
 app.get('/create', async (req, res) => {
     const result = await client.helpers.bulk({
         datasource: dataset,
-        onDocument: (doc) => ({ index: { _index: 'index_name' } }),
+        onDocument: (doc) => ({ index: { _index: 'test' } }),
     });
     res.send(result)
     console.log(result);
 })
 
 app.get('/search', async (req, res) => {
-    // Let's search!
     const searchResult = await client.search({
-        index: 'index_name',
+        index: 'test',
         q: 'snow'
     });
     res.send(searchResult)
