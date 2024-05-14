@@ -3,11 +3,28 @@ const app = express();
 const port = 8080;
 const { Client } = require('@elastic/elasticsearch');
 const client = new Client({
-    node: 'http://localhost:9200/',
+    node: 'https://my-deployment-f6a57b.es.us-central1.gcp.cloud.es.io',
     auth: {
-        apiKey: 'qESQyllOQSWCkKmHNGBRfg'
+        apiKey: 'OUp3cGRvOEJiRmpmRS10S0JkajI6QlNTMEt2Q1ZSYU90TWF3MGlwOHBXQQ=='
     }
 })
+
+const fs = require('fs');
+const csv = require('csv-parser');
+
+
+const integration = () => {
+    json = []; 
+
+    fs.createReadStream('Donnee/art.csv')
+    .pipe(csv({ separator: ',' }))
+    .on('data', (data) => {
+        json.push(data);
+    })
+    .on('end', () => {
+        console.log(json);
+    })
+}
 
 
 app.use(express.json());
@@ -29,9 +46,10 @@ app.listen(port, async () => {
 
 app.get('/', (req, res) => {
     try {
+        integration();
         res.send('Hello World!')
     } catch (error) {
-        res.send("Error")
+        res.send("Error : " + errors)
     }
 })
 
@@ -62,8 +80,4 @@ const dataset = [
     { "name": "Brave New World", "author": "Aldous Huxley", "release_date": "1932-06-01", "page_count": 268 },
     { "name": "The Handmaid's Tale", "author": "Margaret Atwood", "release_date": "1985-06-01", "page_count": 311 },
 ];
-
-
-
-
 

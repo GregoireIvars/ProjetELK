@@ -1,0 +1,17 @@
+{
+  "name": "projetelk",
+  "version": "1.0.0",
+  "description": "En premier temps installer les node_modules, \r Dans le cas de l'api faire donc : \r npm install\r npm install @elastic/elasticsearch@8\r npm install express",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@elastic/elasticsearch": "^8.13.1",
+    "csv-parser": "^3.0.0",
+    "express": "^4.19.2",
+    "fs": "^0.0.1-security"
+  }
+}
