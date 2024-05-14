@@ -3,9 +3,9 @@ const app = express();
 const port = 8080;
 const { Client } = require('@elastic/elasticsearch');
 const client = new Client({
-    node: 'http://localhost:9200/',
+    node: 'https://my-deployment-f6a57b.es.us-central1.gcp.cloud.es.io',
     auth: {
-        apiKey: 'qESQyllOQSWCkKmHNGBRfg'
+        apiKey: 'OUp3cGRvOEJiRmpmRS10S0JkajI6QlNTMEt2Q1ZSYU90TWF3MGlwOHBXQQ=='
     }
 })
 
@@ -38,16 +38,15 @@ app.get('/', (req, res) => {
 app.get('/create', async (req, res) => {
     const result = await client.helpers.bulk({
         datasource: dataset,
-        onDocument: (doc) => ({ index: { _index: 'index_name' } }),
+        onDocument: (doc) => ({ index: { _index: 'test' } }),
     });
     res.send(result)
     console.log(result);
 })
 
 app.get('/search', async (req, res) => {
-    // Let's search!
     const searchResult = await client.search({
-        index: 'index_name',
+        index: 'test',
         q: 'snow'
     });
     res.send(searchResult)
