@@ -63,9 +63,56 @@ app.get('/create', async (req, res) => {
     app.get('/search', async (req, res) => {
         const searchResult = await client.search({
             index: 'bags',
+            q: "Able beak",
+            fields: ["Source Notes", "Source", "Name"],
+            default_operator: "OR"
         });
         res.send(searchResult)
         console.log(searchResult.hits.hits);
     })
 
+    app.get('/all', async (req, res) => {
+        const allIndex = await client.search({
+            size: 0,
+            query: {
+                bool: {
+                    must_not: {
+                        prefix: {
+                            _index: "."
+                        }
+                    }
+                }
+            },
+            aggs: {
+                indices: {
+                    terms: {
+                        field: "_index",
+                        size: 1000
+                    }
+                }
+            }
+        })
+        res.send(allIndex)
+    })
 
+    app.get('/aggregate', async (req, res) => {
+        const aggregateResult = await client.search({
+            index: '',
+            query: {
+                match: {
+                    name: 'beak'
+                }
+            },
+            aggregations: {
+                by_price: {
+                    terms:{
+                        field: "Buy",
+                        size: 100
+                    }
+                }
+            }
+        })
+        res.send(aggregateResult)
+    })
+
+  
