@@ -8,27 +8,8 @@ const client = new Client({
         apiKey: 'OUp3cGRvOEJiRmpmRS10S0JkajI6QlNTMEt2Q1ZSYU90TWF3MGlwOHBXQQ=='
     }
 })
-
 const fs = require('fs');
 const csv = require('csv-parser');
-
-
-const integration = (fille) => {
-    json = []; 
-
-    fs.createReadStream(fille)
-    .pipe(csv({ separator: ',' }))
-    .on('data', (data) => {
-        json.push(data);
-    })
-    // .on('end', () => {
-    //     console.log(json);
-    // })
-
-    return json;
-}
-
-
 app.use(express.json());
 
 app.listen(port, async () => {
@@ -38,8 +19,6 @@ app.listen(port, async () => {
         const resp = await client.info()
         console.log('Connected to Elasticsearch');
         console.log(resp)
-
-
     } catch (error) {
         console.error('Error connecting to Elasticsearch:', error);
     }
@@ -48,7 +27,6 @@ app.listen(port, async () => {
 
 app.get('/', (req, res) => {
     try {
-        integration();
         res.send('Hello World!')
     } catch (error) {
         res.send("Error : " + errors)
@@ -56,29 +34,38 @@ app.get('/', (req, res) => {
 })
 
 app.get('/create', async (req, res) => {
-    const result = await client.helpers.bulk({
-        datasource: dataset,
-        onDocument: (doc) => ({ index: { _index: 'test' } }),
-    });
-    res.send(result)
-    console.log(result);
-})
+    let result
+    let json = []
+    await fs.createReadStream("./Donnee/accessories.csv")
+        .pipe(csv({ separator: ',' }))
+        .on('data', (data) => {
+            json.push(data)
+        })
+        .on('end', async () => {
+            fs.readdir("./Donnee", (err, files) => {
+                if (err) {
+                    console.error(err)
+                    return;
+                }
+                files.forEach(async file => {
+                    if (file != undefined) {
+                        result = await client.helpers.bulk({
+                            datasource: json,
+                            onDocument: (doc) => ({ index: { _index: file.replace(".csv", "") } }),
+                        });
+                    }
+                });
+            })
+            res.send(result)
+        })
+    })
 
-app.get('/search', async (req, res) => {
-    const searchResult = await client.search({
-        index: 'test',
-        q: 'snow'
-    });
-    res.send(searchResult)
-    console.log(searchResult.hits.hits);
-})
+    app.get('/search', async (req, res) => {
+        const searchResult = await client.search({
+            index: 'bags',
+        });
+        res.send(searchResult)
+        console.log(searchResult.hits.hits);
+    })
 
-const dataset = [
-    { "name": "Snow Crash", "author": "Neal Stephenson", "release_date": "1992-06-01", "page_count": 470 },
-    { "name": "Revelation Space", "author": "Alastair Reynolds", "release_date": "2000-03-15", "page_count": 585 },
-    { "name": "1984", "author": "George Orwell", "release_date": "1985-06-01", "page_count": 328 },
-    { "name": "Fahrenheit 451", "author": "Ray Bradbury", "release_date": "1953-10-15", "page_count": 227 },
-    { "name": "Brave New World", "author": "Aldous Huxley", "release_date": "1932-06-01", "page_count": 268 },
-    { "name": "The Handmaid's Tale", "author": "Margaret Atwood", "release_date": "1985-06-01", "page_count": 311 },
-];
 
